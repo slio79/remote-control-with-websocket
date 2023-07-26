@@ -12,12 +12,15 @@
 #include <ESPAsyncWebServer.h>
 #include <ArduinoJson.h>
 
+#include <AsyncElegantOTA.h>
+#include "main_include.h"
+
 // ----------------------------------------------------------------------------
 // Definition of macros
 // ----------------------------------------------------------------------------
 
-#define LED_PIN   26
-#define BTN_PIN   22
+// #define LED_PIN   26
+// #define BTN_PIN   22
 #define HTTP_PORT 80
 
 // ----------------------------------------------------------------------------
@@ -28,8 +31,8 @@
 const uint8_t DEBOUNCE_DELAY = 10; // in milliseconds
 
 // WiFi credentials
-const char *WIFI_SSID = "YOUR_WIFI_SSID";
-const char *WIFI_PASS = "YOUR_WIFI_PASSWORD";
+const char *WIFI_SSID = "neuf_B1B1_2_4GHz";
+const char *WIFI_PASS = "QqqSssDddFff";
 
 // ----------------------------------------------------------------------------
 // Definition of the LED component
@@ -42,14 +45,14 @@ struct Led {
 
     // methods
     void update() {
-        digitalWrite(pin, on ? HIGH : LOW);
+        digitalWrite(pin, on ? LOW : HIGH);
     }
 };
 
 // ----------------------------------------------------------------------------
 // Definition of the Button component
 // ----------------------------------------------------------------------------
-
+/*
 struct Button {
     // state variables
     uint8_t  pin;
@@ -91,7 +94,7 @@ struct Button {
         // finally, each new reading is saved
         lastReading = reading;
     }
-};
+};*/
 
 // ----------------------------------------------------------------------------
 // Definition of global variables
@@ -109,7 +112,7 @@ AsyncWebSocket ws("/ws");
 // ----------------------------------------------------------------------------
 
 void initSPIFFS() {
-  if (!SPIFFS.begin()) {
+  if (!SPIFFS.begin(true)) {
     Serial.println("Cannot mount SPIFFS volume...");
     while (1) {
         onboard_led.on = millis() % 200 < 50;
@@ -148,7 +151,9 @@ void onRootRequest(AsyncWebServerRequest *request) {
 void initWebServer() {
     server.on("/", onRootRequest);
     server.serveStatic("/", SPIFFS, "/");
+    AsyncElegantOTA.begin(&server);
     server.begin();
+
 }
 
 // ----------------------------------------------------------------------------
