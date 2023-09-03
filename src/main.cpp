@@ -13,8 +13,9 @@
 #include <ArduinoJson.h>
 
 #include <AsyncElegantOTA.h>
-#include "main_include.h"
 
+#include <ezButton.h>
+#include "main_include.h"
 // ----------------------------------------------------------------------------
 // Definition of macros
 // ----------------------------------------------------------------------------
@@ -99,11 +100,9 @@ struct Button {
 // ----------------------------------------------------------------------------
 // Definition of global variables
 // ----------------------------------------------------------------------------
-
-Led    onboard_led = { LED_BUILTIN, false };
-Led    led         = { LED_PIN, false };
-Button button      = { BTN_PIN, HIGH, 0, 0 };
-
+uint8_t onboard_led = LED_BUILTIN2;
+uint8_t led = LED_PIN; 
+ezButton wsButton  = { BTN_PIN, INPUT_PULLUP };
 AsyncWebServer server(HTTP_PORT);
 AsyncWebSocket ws("/ws");
 
@@ -115,8 +114,7 @@ void initSPIFFS() {
   if (!SPIFFS.begin(true)) {
     Serial.println("Cannot mount SPIFFS volume...");
     while (1) {
-        onboard_led.on = millis() % 200 < 50;
-        onboard_led.update();
+        digitalWrite(onboard_led, (millis() % 200 < 50));
     }
   }
 }
@@ -141,7 +139,7 @@ void initWiFi() {
 // ----------------------------------------------------------------------------
 
 String processor(const String &var) {
-    return String(var == "STATE" && led.on ? "on" : "off");
+    return String(var == "STATE" && digitalRead(led) ? "on" : "off");
 }
 
 void onRootRequest(AsyncWebServerRequest *request) {
@@ -163,7 +161,7 @@ void initWebServer() {
 void notifyClients() {
     const uint8_t size = JSON_OBJECT_SIZE(1);
     StaticJsonDocument<size> json;
-    json["status"] = led.on ? "on" : "off";
+    json["status"] = digitalRead(led) ? "on" : "off";
 
     char buffer[17];
     size_t len = serializeJson(json, buffer);
@@ -185,7 +183,7 @@ void handleWebSocketMessage(void *arg, uint8_t *data, size_t len) {
 
         const char *action = json["action"];
         if (strcmp(action, "toggle") == 0) {
-            led.on = !led.on;
+            digitalWrite(led, !digitalRead(led));
             notifyClients();
         }
 
@@ -225,12 +223,12 @@ void initWebSocket() {
 // ----------------------------------------------------------------------------
 
 void setup() {
-    pinMode(onboard_led.pin, OUTPUT);
-    pinMode(led.pin,         OUTPUT);
-    pinMode(button.pin,      INPUT);
+    pinMode(onboard_led, OUTPUT);
+    pinMode(led,         OUTPUT);
 
     Serial.begin(115200); delay(500);
 
+    
     initSPIFFS();
     initWiFi();
     initWebSocket();
@@ -244,15 +242,13 @@ void setup() {
 void loop() {
     ws.cleanupClients();
 
-    button.read();
-
-    if (button.pressed()) {
-        led.on = !led.on;
+    wsButton.loop();
+    if (wsButton.isPressed()) {
+        digitalWrite(led, !digitalRead(led));
         notifyClients();
     }
     
-    onboard_led.on = millis() % 1000 < 50;
+     digitalWrite(onboard_led, (millis() % 1000 < 50)) ;
 
-    led.update();
-    onboard_led.update();
+
 }
