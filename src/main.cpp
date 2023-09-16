@@ -8,10 +8,17 @@
 
 #include <Arduino.h>
 #include <SPIFFS.h>
-#include <WiFi.h>
-#include <ESPAsyncWebServer.h>
-#include <ArduinoJson.h>
 
+/*--------- utilisation ESP32 --------------*/
+//#include <WiFi.h> // pour ESP Async WebServer
+//#include <ESPAsyncWebServer.h>   // 	(ESP Async WebServer)
+
+/*--------- utilisation WT32--------------*/
+#include <AsyncTCP.h>  //  elegantOTA
+#include <AsyncWebServer_WT32_ETH01.h>  // (khoih-prog/AsyncWebServer_WT32_ETH01)
+
+
+#include <ArduinoJson.h>
 #include <AsyncElegantOTA.h>
 
 #include <ezButton.h>

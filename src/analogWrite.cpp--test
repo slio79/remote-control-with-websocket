@@ -1,0 +1,39 @@
+#include "analogWrite.h"
+#include <pwmWrite.h>
+
+Pwm pwm = Pwm();
+
+// Define a function pointer with the same signature as the original function
+void analogWrite(uint8_t pin, uint32_t value)//, uint32_t valueMax = 255)
+{
+
+// duty This sets the pwm duty. The range is 0 to (2**resolution) - 1 (uint32_t)
+/*
+  pwm.pause();
+    pwm.write(pin, (duty - deadtime), frequency, resolution, (phase[i] + shift[i]));
+  pwm.resume();
+  pwm.printDebug();
+*/
+
+};
+
+//void (*analogWrite) (uint8_t pin, uint32_t value, uint32_t valueMax = 255);
+
+
+
+// Replacement function
+/*int myReplacementFunction(int arg) {
+    // Add your custom logic here
+    int result = arg * 2;
+
+    // Call the original function through the function pointer
+    return originalFunctionPointer(result);
+}
+
+// Inside your main function or initialization code
+analogWrite = originalFunction; // Initialize the pointer
+
+// Call the replacement function, which in turn calls the original function
+int result = myReplacementFunction(5);
+
+*/
